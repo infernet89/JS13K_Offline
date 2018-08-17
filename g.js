@@ -41,7 +41,7 @@ function generateLevel()
         solutionObject=new Object();
         solutionObject.size=60;
         solutionObject.x=canvasW/2-30
-        solutionObject.y=canvasH-140;
+        solutionObject.y=canvasH-120;
         solutionObject.alpha=1;
     }
 }
@@ -54,34 +54,39 @@ function drawSolutionPoint(o)
     ctx.fillRect(o.x+o.size,o.y-o.size,2,o.size);
 
     ctx.beginPath();
-    ctx.arc(o.x+o.size/2, o.y-10, 5, 0, 2 * Math.PI, false);
+    ctx.arc(o.x+o.size/2, o.y-25, 5, 0, 2 * Math.PI, false);
     ctx.fill();
     ctx.lineWidth = 5/10;
     ctx.strokeStyle = '#0F0';
     ctx.stroke();
     ctx.closePath();
-    for(i=0;i<7;i++)
+    for(i=0;i<5;i++)
     {
         ctx.beginPath();
-        ctx.arc(o.x+o.size/2, o.y-10, 5+i*5, Math.PI, Math.PI+Math.PI/2, false);
+        ctx.arc(o.x+o.size/2, o.y-25, 5+i*5, 230*TO_RADIANS, 310*TO_RADIANS, false);
         ctx.lineWidth = 1;
         ctx.strokeStyle = '#0F0';
         ctx.stroke();
-        //ctx.closePath();
+        ctx.closePath();
     }
 }
 function drawDistanceIndicator(to)
 {
-    //TODO calcola distanza tra mousex,mousey e to
-    distance=(mousex-to.x)*(mousex-to.x)+(mousey-to.y)*(mousey-to.y);
-    //TODO rendi la distanza un numero da 0 a 7
+    //calcola distanza tra mousex,mousey e to
+    distance=(mousex-to.x-to.size/2)*(mousex-to.x-to.size/2)+(mousey-to.y+to.size/2)*(mousey-to.y+to.size/2);
+    //rendi la distanza un numero da 0 a 5
     maxDistance=(canvasW*canvasW+canvasH*canvasH)/4;
-    distance=7-7*(distance/maxDistance);
-    document.title=distance;
+    distance=5-5*(distance/maxDistance);
+    //document.title=distance;
     
     ctx.save();
     ctx.translate(mousex,mousey);
-    ctx.filltyle="#FFF";
+    if(distance<-0.3)
+        ctx.fillStyle="#F00";
+    else if(distance>4.95)
+        ctx.fillStyle="#0F0";
+    else
+        ctx.fillStyle="#FFF";
 
     ctx.beginPath();
     //down 'arrow'
@@ -102,7 +107,8 @@ function drawDistanceIndicator(to)
     ctx.lineWidth = 1;
     ctx.fill();
     ctx.closePath();
-    //intensity indicator
+    //intensity indicator   
+    ctx.fillStyle="#FFF";
     for(i=0;i<distance;i++)
         ctx.fillRect(10+2*i,0,1,-3-i);
     
@@ -125,9 +131,9 @@ function run()
     {
         drawSolutionPoint(solutionObject);
         
-        ctx.fillStyle="#F00";
+        ctx.fillStyle="#0F0";
         ctx.font = "20px Arial";
-        ctx.fillText("PLAY",canvasW/2-25,canvasH-145);
+        ctx.fillText("PLAY",canvasW/2-25,canvasH-125);
         ctx.fillStyle="#FFF";
         ctx.font = "12px Arial";
         ctx.fillText("By Infernet89",canvasW-75,canvasH-5);
@@ -135,6 +141,15 @@ function run()
         //ctx.fillText("Music by ABSolid",5+canvasW/2,canvasH-5);
     }
     //TODO altri livelli qui
+
+    //if mouse is inside solutionobject, mouse becomes an hand
+    if(mousex>solutionObject.x && mousex<solutionObject.x+solutionObject.size && mousey>solutionObject.y-solutionObject.size && mousey<solutionObject.y)
+    {
+        document.body.style.cursor = "pointer";
+        if(dragging)
+            document.title="Level++";
+    }
+    else document.body.style.cursor = "default";
 
     drawDistanceIndicator(solutionObject);
 }
