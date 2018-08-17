@@ -52,6 +52,23 @@ function drawSolutionPoint(o)
     ctx.fillRect(o.x,o.y-o.size,o.size,2);
     ctx.fillRect(o.x,o.y-o.size,2,o.size);
     ctx.fillRect(o.x+o.size,o.y-o.size,2,o.size);
+
+    ctx.beginPath();
+    ctx.arc(o.x+o.size/2, o.y-10, 5, 0, 2 * Math.PI, false);
+    ctx.fill();
+    ctx.lineWidth = 5/10;
+    ctx.strokeStyle = '#0F0';
+    ctx.stroke();
+    ctx.closePath();
+    for(i=0;i<7;i++)
+    {
+        ctx.beginPath();
+        ctx.arc(o.x+o.size/2, o.y-10, 5+i*5, Math.PI, Math.PI+Math.PI/2, false);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#0F0';
+        ctx.stroke();
+        //ctx.closePath();
+    }
 }
 function drawDistanceIndicator(to)
 {
