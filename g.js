@@ -10,7 +10,6 @@ var canvasH;
 var ctx;
 var activeTask;
 var level=0;
-var drawableObjects=[];
 var solutionObject=null;
 
 //mobile controls
@@ -37,21 +36,60 @@ activeTask=setInterval(run, 33);
 
 function generateLevel()
 {
-    drawableObjects=[];
-    //next level button
-    /*tmp=new Object();
-    tmp.size=20;
-    tmp.x=canvasW-140;
-    tmp.y=canvasH-40;
-    tmp.rotation=rand(0,360);
-    tmp.dx=0;
-    tmp.dy=0;
-    tmp.dr=0.5;
-    tmp.type=level+3;//actually, number of edges
-    tmp.color=colorTypes[level+3];
-    tmp.isFilled=true;
-    tmp.alpha=1;
-    drawableObjects.push(tmp); */
+    if(level==0)
+    {
+        solutionObject=new Object();
+        solutionObject.size=60;
+        solutionObject.x=canvasW/2-30
+        solutionObject.y=canvasH-140;
+        solutionObject.alpha=1;
+    }
+}
+function drawSolutionPoint(o)
+{
+    ctx.fillStyle="#0F0";
+    ctx.fillRect(o.x,o.y,o.size,2);
+    ctx.fillRect(o.x,o.y-o.size,o.size,2);
+    ctx.fillRect(o.x,o.y-o.size,2,o.size);
+    ctx.fillRect(o.x+o.size,o.y-o.size,2,o.size);
+}
+function drawDistanceIndicator(to)
+{
+    //TODO calcola distanza tra mousex,mousey e to
+    distance=(mousex-to.x)*(mousex-to.x)+(mousey-to.y)*(mousey-to.y);
+    //TODO rendi la distanza un numero da 0 a 7
+    maxDistance=(canvasW*canvasW+canvasH*canvasH)/4;
+    distance=7-7*(distance/maxDistance);
+    document.title=distance;
+    
+    ctx.save();
+    ctx.translate(mousex,mousey);
+    ctx.filltyle="#FFF";
+
+    ctx.beginPath();
+    //down 'arrow'
+    ctx.moveTo(2,0);
+    ctx.lineTo(0,-3);
+    ctx.lineTo(2,-3);
+    ctx.lineTo(2,-10);
+    ctx.lineTo(4,-10);
+    ctx.lineTo(4,0);
+    ctx.lineTo(2,0);
+    ctx.lineWidth = 1;
+    //up 'arrow'
+    ctx.moveTo(5,-10);
+    ctx.lineTo(9,-7);
+    ctx.lineTo(7,-7);
+    ctx.lineTo(7,0);
+    ctx.lineTo(5,0);
+    ctx.lineWidth = 1;
+    ctx.fill();
+    ctx.closePath();
+    //intensity indicator
+    for(i=0;i<distance;i++)
+        ctx.fillRect(10+2*i,0,1,-3-i);
+    
+    ctx.restore();
 }
 function run()
 {
@@ -65,18 +103,11 @@ function run()
     ctx.fillRect(0,0,1,canvasH);
     ctx.fillRect(canvasW-1,0,1,canvasH);
 
-    //draw and move all objects
-    drawableObjects.forEach(function(e)
-    {
-        /*if(e.alpha<1) e.alpha+=0.05;
-        drawOject(e);
-        e.x+=e.dx;
-        e.y+=e.dy;
-        e.rotation+=e.dr;*/
-    });
     //menu
     if(level==0)
     {
+        drawSolutionPoint(solutionObject);
+        
         ctx.fillStyle="#F00";
         ctx.font = "20px Arial";
         ctx.fillText("PLAY",canvasW/2-25,canvasH-145);
@@ -87,6 +118,8 @@ function run()
         //ctx.fillText("Music by ABSolid",5+canvasW/2,canvasH-5);
     }
     //TODO altri livelli qui
+
+    drawDistanceIndicator(solutionObject);
 }
 /*
 function getObjectInsideMouse()
