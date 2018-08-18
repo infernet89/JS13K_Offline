@@ -31,7 +31,7 @@ canvas.addEventListener("mousedown",cliccatoMouse);
 canvas.addEventListener("mouseup",rilasciatoMouse);
 window.addEventListener('keyup',keyUp,false);
 
-level=0;//TODO change level here
+level=3;//TODO change level here
 generateLevel();
 activeTask=setInterval(run, 33);
 
@@ -195,6 +195,15 @@ function run()
             ctx.fillText("BRAIN!",350,300);
         else dragging=false;//avoid click while loading animation
 
+    }
+    else if(level==3)
+    {
+        ctx.fillStyle="#FFF";
+        ctx.font="25px Webdings";//TODO vedere se windows e mobile ce la fanno lo stesso. Apparentemente sì.
+        ctx.fillText("qwertyuiopasdfghjklzxcvbnm",10,50);
+        ctx.fillText("QWERTYUIOPASDFGHJKLZXCVBNM",10,100);
+        ctx.fillText("1234567890!£$%&/()=?^'ì.:,;",10,150);
+        ctx.fillText("<>àèìòù@ç°§*é+][#{}",10,200);
     }
     //TODO altri livelli qui
 
