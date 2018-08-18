@@ -50,23 +50,23 @@ function generateLevel()
     {
         animationProgress=0;
         solutionObject=new Object();
-        solutionObject.sizeX=60;
-        solutionObject.sizeY=60;
-        solutionObject.x=canvasW/2-30
-        solutionObject.y=canvasH-120;
+        solutionObject.sizeX=260;
+        solutionObject.sizeY=65;
+        solutionObject.x=355
+        solutionObject.y=300;
         solutionObject.alpha=1;
     }
 }
 function drawSolutionPoint(o)
 {
     ctx.fillStyle="#0F0";
-    ctx.fillRect(o.x,o.y,o.size,2);
-    ctx.fillRect(o.x,o.y-o.size,o.size,2);
-    ctx.fillRect(o.x,o.y-o.size,2,o.size);
-    ctx.fillRect(o.x+o.size,o.y-o.size,2,o.size);
+    ctx.fillRect(o.x,o.y,o.sizeX,2);
+    ctx.fillRect(o.x,o.y-o.sizeY,o.sizeX,2);
+    ctx.fillRect(o.x,o.y-o.sizeY,2,o.sizeY);
+    ctx.fillRect(o.x+o.sizeX,o.y-o.sizeY,2,o.sizeY+2);
 
     ctx.beginPath();
-    ctx.arc(o.x+o.size/2, o.y-25, 5, 0, 2 * Math.PI, false);
+    ctx.arc(o.x+o.sizeX/2, o.y-25, 5, 0, 2 * Math.PI, false);
     ctx.fill();
     ctx.lineWidth = 5/10;
     ctx.strokeStyle = '#0F0';
@@ -75,7 +75,7 @@ function drawSolutionPoint(o)
     for(i=0;i<5;i++)
     {
         ctx.beginPath();
-        ctx.arc(o.x+o.size/2, o.y-25, 5+i*5, 230*TO_RADIANS, 310*TO_RADIANS, false);
+        ctx.arc(o.x+o.sizeX/2, o.y-25, 5+i*5, 230*TO_RADIANS, 310*TO_RADIANS, false);
         ctx.lineWidth = 1;
         ctx.strokeStyle = '#0F0';
         ctx.stroke();
@@ -85,14 +85,15 @@ function drawSolutionPoint(o)
 function drawDistanceIndicator(to)
 {
     //calcola distanza tra mousex,mousey e to
-    distance=(mousex-to.x-to.size/2)*(mousex-to.x-to.size/2)+(mousey-to.y+to.size/2)*(mousey-to.y+to.size/2);
+    distance=(mousex-to.x-to.sizeX/2)*(mousex-to.x-to.sizeX/2)+(mousey-to.y+to.sizeY/2)*(mousey-to.y+to.sizeY/2);
     //rendi la distanza un numero da 0 a 5
     maxDistance=(canvasW*canvasW+canvasH*canvasH)/4;
     distance=5-5*(distance/maxDistance);
     //document.title=distance;
     
     ctx.save();
-    ctx.translate(mousex,mousey);
+    //ctx.translate(mousex,mousey);//follow the mouse
+    ctx.translate(canvasW-25,20);//on top-right
     if(distance<-0.3)
         ctx.fillStyle="#F00";
     else if(distance>4.95)
@@ -154,53 +155,63 @@ function run()
     }
     else if(level==1)
     {
+        animationProgress++;
+        //document.title=animationProgress;
+
+        toWrite="This";
+        toWrite=toWrite.substring(0,animationProgress/2);
         ctx.fillStyle="#FFF";
         ctx.font="40px Arial";
-        ctx.fillText("This",50,100);
+        ctx.fillText(toWrite,50,100);
 
+        toWrite="little";
+        toWrite=toWrite.substring(0,-8+animationProgress/2);
         ctx.font="20px Arial";
-        ctx.fillText("little",140,100);
+        ctx.fillText(toWrite,140,100);
 
+        toWrite="game";
+        toWrite=toWrite.substring(0,-16+animationProgress/2);        
         ctx.font="40px Arial";
-        ctx.fillText("game",190,100);
+        ctx.fillText(toWrite,190,100);
 
+        toWrite="is gonna";
+        toWrite=toWrite.substring(0,-24+animationProgress/2);  
         ctx.font="40px Arial";
-        ctx.fillText("is gonna",50,180);
+        ctx.fillText(toWrite,50,180);
 
         ctx.fillStyle="#F00";
         ctx.font="90px Arial";
-        ctx.fillText("Hurt",50,300);
+        if(animationProgress>70)        
+            ctx.fillText("Hurt",50,300);
 
         ctx.fillStyle="#FFF";
         ctx.font="40px Arial";
-        ctx.fillText("your",250,300);
+        if(animationProgress>90) 
+            ctx.fillText("your",250,300);
 
         ctx.fillStyle="#0F0";
         ctx.font="90px Arial";
-        ctx.fillText("BRAIN!",350,300);
+        if(animationProgress>110) 
+            ctx.fillText("BRAIN!",350,300);
+        else dragging=false;//avoid click while loading animation
 
     }
     //TODO altri livelli qui
 
     //if mouse is inside solutionobject, mouse becomes an hand
-    if(mousex>solutionObject.x && mousex<solutionObject.x+solutionObject.size && mousey>solutionObject.y-solutionObject.size && mousey<solutionObject.y)
+    if(mousex>solutionObject.x && mousex<solutionObject.x+solutionObject.sizeX && mousey>solutionObject.y-solutionObject.sizeY && mousey<solutionObject.y)
     {
         document.body.style.cursor = "pointer";
         if(dragging)
-            document.title="Level++";
+        {
+            level++;
+            generateLevel();
+        }
     }
     else document.body.style.cursor = "default";
 
     drawDistanceIndicator(solutionObject);
 }
-/*
-function getObjectInsideMouse()
-{
-    for(i=0;i<drawableObjects.length;i++)
-        if(mousex+20>drawableObjects[i].x-drawableObjects[i].size && mousex<drawableObjects[i].x+drawableObjects[i].size && mousey+20>drawableObjects[i].y-drawableObjects[i].size && mousey<drawableObjects[i].y+drawableObjects[i].size)
-            return drawableObjects[i];
-    return null;
-}*/
 /*#############
     Funzioni Utili
 ##############*/
