@@ -10,6 +10,7 @@ var canvasH;
 var ctx;
 var activeTask;
 var level=0;
+var animationProgress=0;
 var solutionObject=null;
 
 //mobile controls
@@ -30,7 +31,7 @@ canvas.addEventListener("mousedown",cliccatoMouse);
 canvas.addEventListener("mouseup",rilasciatoMouse);
 window.addEventListener('keyup',keyUp,false);
 
-level=0;
+level=0;//TODO change level here
 generateLevel();
 activeTask=setInterval(run, 33);
 
@@ -39,7 +40,18 @@ function generateLevel()
     if(level==0)
     {
         solutionObject=new Object();
-        solutionObject.size=60;
+        solutionObject.sizeX=60;
+        solutionObject.sizeY=60;
+        solutionObject.x=canvasW/2-30
+        solutionObject.y=canvasH-120;
+        solutionObject.alpha=1;
+    }
+    else if(level==1)
+    {
+        animationProgress=0;
+        solutionObject=new Object();
+        solutionObject.sizeX=60;
+        solutionObject.sizeY=60;
         solutionObject.x=canvasW/2-30
         solutionObject.y=canvasH-120;
         solutionObject.alpha=1;
@@ -139,6 +151,34 @@ function run()
         ctx.fillText("By Infernet89",canvasW-75,canvasH-5);
         ctx.fillText("Made for JS13k Competition",5,canvasH-5);
         //ctx.fillText("Music by ABSolid",5+canvasW/2,canvasH-5);
+    }
+    else if(level==1)
+    {
+        ctx.fillStyle="#FFF";
+        ctx.font="40px Arial";
+        ctx.fillText("This",50,100);
+
+        ctx.font="20px Arial";
+        ctx.fillText("little",140,100);
+
+        ctx.font="40px Arial";
+        ctx.fillText("game",190,100);
+
+        ctx.font="40px Arial";
+        ctx.fillText("is gonna",50,180);
+
+        ctx.fillStyle="#F00";
+        ctx.font="90px Arial";
+        ctx.fillText("Hurt",50,300);
+
+        ctx.fillStyle="#FFF";
+        ctx.font="40px Arial";
+        ctx.fillText("your",250,300);
+
+        ctx.fillStyle="#0F0";
+        ctx.font="90px Arial";
+        ctx.fillText("BRAIN!",350,300);
+
     }
     //TODO altri livelli qui
 
