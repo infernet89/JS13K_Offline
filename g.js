@@ -43,6 +43,7 @@ function generateLevel()
     animationProgress=0;
     solutionObject=new Object();
     solutionObject.hasRectangle=true;
+    solutionObject.isCircle=false;
     solutionObject.offsetY=0;
     solutionObject.alpha=1;
     solutionObject.color="#0F0";
@@ -61,16 +62,29 @@ function generateLevel()
         solutionObject.sizeY=65;
         solutionObject.x=455
         solutionObject.y=450;
-        solutionObject.alpha=0.2;
+        solutionObject.alpha=0.6;
         solutionObject.hasRectangle=false;
     }
     else if(level==2)
+    {
+        solutionObject.sizeX=45;
+        solutionObject.sizeY=45;
+        solutionObject.x=100
+        solutionObject.y=100;
+        solutionObject.dx=rand(-9,9);
+        solutionObject.dy=rand(-9,9);
+        solutionObject.offsetY=-15;
+        solutionObject.isCircle=true;
+        solutionObject.hasRectangle=false;
+        solutionObject.alpha=1;
+    }
+    else if(level==3)
     {
         solutionObject.sizeX=40;
         solutionObject.sizeY=40;
         solutionObject.x=10
         solutionObject.y=80;
-        solutionObject.offsetY=-18;
+        solutionObject.offsetY=-22;
         solutionObject.hasRectangle=false;
         randomPlaces=[];
         for(i=0;i<canvasW/40;i++)
@@ -95,6 +109,7 @@ function generateLevel()
         else if(r==1)
             solutionObject.color="#F00"; 
         else solutionObject.color="#0F0";
+        //solutionObject.color="#00F";//DEBUG
         solX=rand(0,-1+canvasW/40);
         solY=rand(0,-6+canvasH/40);
         randomPlaces[solX][solY].char="";
@@ -115,20 +130,40 @@ function drawSolutionPoint(o)
         ctx.fillRect(o.x,o.y-o.sizeY,2,o.sizeY);
         ctx.fillRect(o.x+o.sizeX,o.y-o.sizeY,2,o.sizeY+2);
     }
+    if(o.isCircle)
+    {
+        ctx.beginPath();
+        ctx.arc(o.x+o.sizeX/2, o.y-o.sizeY/2, o.sizeX/2, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.lineWidth = 5/10;
+        ctx.strokeStyle = o.color;
+        ctx.stroke();
+        ctx.closePath();
+    }
 
+    //dot
+    if(o.isCircle)
+        ctx.fillStyle= "#000";
     ctx.beginPath();
     ctx.arc(o.x+o.sizeX/2, o.y-25-o.offsetY, 5, 0, 2 * Math.PI, false);
     ctx.fill();
     ctx.lineWidth = 5/10;
-    ctx.strokeStyle = o.color;
+    if(o.isCircle)
+        ctx.strokeStyle = "#000";
+    else
+        ctx.strokeStyle = o.color;
     ctx.stroke();
     ctx.closePath();
+    //waves
     for(i=0;i<5;i++)
     {
         ctx.beginPath();
         ctx.arc(o.x+o.sizeX/2, o.y-25-o.offsetY, 5+i*5, 230*TO_RADIANS, 310*TO_RADIANS, false);
         ctx.lineWidth = 1;
-        ctx.strokeStyle = o.color;
+        if(o.isCircle)
+        ctx.strokeStyle = "#000";
+        else
+            ctx.strokeStyle = o.color;
         ctx.stroke();
         ctx.closePath();
     }
@@ -250,25 +285,48 @@ function run()
     }
     else if(level==2)
     {
+        if(solutionObject.x+solutionObject.dx>canvasW-solutionObject.sizeX || solutionObject.x+solutionObject.dx<0)
+            solutionObject.dx*=-1;
+        if(solutionObject.y+solutionObject.dy>canvasH || solutionObject.y+solutionObject.dy<solutionObject.sizeY)
+            solutionObject.dy*=-1;
+        
+        if(--animationProgress>0)
+        {
+            dragging=false;
+            if(animationProgress>33)
+            {
+                solutionObject.x+=solutionObject.dx;
+                solutionObject.y+=solutionObject.dy;
+            }
+        }
+        else if(animationProgress>-30)
+            solutionObject.alpha=1;
+        else
+        {
+            solutionObject.alpha=0;
+            animationProgress=rand(300,999);
+            solutionObject.dx=rand(-15,15);
+            solutionObject.dy=rand(-15,15);
+        }
+        
+        
+        drawSolutionPoint(solutionObject);
+
+    }
+    else if(level==3)
+    {
         ctx.font="40px Webdings";
         for(i=0;i<canvasW/40;i++)
             for(k=0;k<-5+canvasH/40;k++)
             {
                 ctx.fillStyle=randomPlaces[i][k].color;
                 ctx.fillText(randomPlaces[i][k].char,i*40,canvasH-k*40-10);
-                //ctx.fillText("a",i*40,canvasH-k*40-10);
             }
-                
-        /*ctx.fillText("QWERTYUIOPASDFGHJKLZXCVBNM",10,100);
-        ctx.fillText("1234567890!£$%&/()=?^'ì.:,;",10,150);
-        ctx.fillText("<>àèìòù@ç°§*é+][#{}",10,200);
-        ctx.fillText("qwertyuiopasdfghjklzxcvbnm",10,250);*/
-
         drawSolutionPoint(solutionObject);
     }
     //TODO altri livelli qui
 
-    //if mouse is inside solutionobject, mouse becomes an hand
+    //if mouse is inside solutionObject, mouse becomes an hand
     if(mousex>solutionObject.x && mousex<solutionObject.x+solutionObject.sizeX && mousey>solutionObject.y-solutionObject.sizeY && mousey<solutionObject.y)
     {
         document.body.style.cursor = "pointer";
