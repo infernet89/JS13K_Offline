@@ -27,6 +27,9 @@ canvasH=canvas.height = 800;//window.innerHeight;
 //canvasW=(canvasH/800)*1200;
 maxDistance=Math.sqrt(canvasW*canvasW+canvasH*canvasH)/4;
 maxIntensity=7;
+var randomWords=["ship","dog","experiment","test","thing","anomaly","cat","horse","giraffe","fish","bottle","club","piece","man","lawyer","zombie","error","explosion","mouse","nugget","meatball","watermelon","message"];
+var randomWordForRandom=//TODO quelle sopra, ma lunghe 6;
+var alphabet=["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","Z","X","C","V","B","N","M"];
 
 //controls
 canvas.addEventListener("mousemove",mossoMouse);
@@ -34,7 +37,7 @@ canvas.addEventListener("mousedown",cliccatoMouse);
 canvas.addEventListener("mouseup",rilasciatoMouse);
 window.addEventListener('keyup',keyUp,false);
 
-level=0;//TODO change level here
+level=8;//TODO change level here
 generateLevel();
 activeTask=setInterval(run, 33);
 
@@ -77,9 +80,12 @@ function generateLevel()
         solutionObject.isCircle=true;
         solutionObject.hasRectangle=false;
         solutionObject.alpha=1;
+        animationProgress=-20;
     }
     else if(level==3)
     {
+        var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
         solutionObject.sizeX=40;
         solutionObject.sizeY=40;
         solutionObject.x=10
@@ -93,7 +99,10 @@ function generateLevel()
             for(k=0;k<-5+canvasH/40;k++)
             {
                 randomPlaces[i][k]=new Object();
-                randomPlaces[i][k].char=String.fromCharCode(rand(33,255));
+                if(isFirefox)
+                    randomPlaces[i][k].char="FIREFOXISBROKEN".charAt((i+k)%15);
+                else
+                    randomPlaces[i][k].char=String.fromCharCode(rand(33,255));
                 r=rand(0,2)
                 if(r==2)
                     randomPlaces[i][k].color="#FFF"; 
@@ -116,6 +125,24 @@ function generateLevel()
         solutionObject.x=solX*40;
         solutionObject.y=canvasH-solY*40-10;
         //ctx.fillText(randomPlaces[i][k].char,i*40,canvasH-k*40-10);
+    }
+    else if(level==8)
+    {
+        solutionObject.sizeX=45;
+        solutionObject.sizeY=45;
+        solutionObject.x=-100
+        solutionObject.y=-100;
+        solutionObject.offsetY=-15;
+        solutionObject.isCircle=true;
+        solutionObject.hasRectangle=false;
+        solutionObject.alpha=1;
+        clearInterval(activeTask);
+        activeTask=setInterval(run, 1);
+    }
+    else if(level==9)
+    {
+        clearInterval(activeTask);
+        activeTask=setInterval(run, 33);
     }
 }
 function drawSolutionPoint(o)
@@ -169,7 +196,7 @@ function drawSolutionPoint(o)
     }
     ctx.restore();
 }
-function drawDistanceIndicator(to)
+function drawHUD(to)
 {
     //calcola distanza tra mousex,mousey e to
     distance=Math.sqrt((mousex-to.x-to.sizeX/2)*(mousex-to.x-to.sizeX/2)+(mousey-to.y+to.sizeY/2)*(mousey-to.y+to.sizeY/2));
@@ -212,6 +239,21 @@ function drawDistanceIndicator(to)
         ctx.fillRect(10+2*i,0,1,-3-i);
     
     ctx.restore();
+
+    //check if it is connected, also display yime
+    ctx.fillStyle="#FFF";
+    if(navigator.onLine)
+    {
+        var today = new Date();
+        var h = today.getHours();
+        var m = today.getMinutes();
+        var s = today.getSeconds();
+        m = (m < 10) ? "0" + m : m;  //add zero in front of numbers
+        s = (s < 10) ? "0" + s : s;  //add zero in front of numbers
+        ctx.fillText(h + ":" + m + ":" + s,5,15);
+    }
+    else 
+        ctx.fillText("Offline",5,15);
 }
 function run()
 {
@@ -305,8 +347,8 @@ function run()
         {
             solutionObject.alpha=0;
             animationProgress=rand(300,999);
-            solutionObject.dx=rand(-15,15);
-            solutionObject.dy=rand(-15,15);
+            solutionObject.dx=rand(-5,5);
+            solutionObject.dy=rand(-5,5);
         }
         
         
@@ -324,6 +366,40 @@ function run()
             }
         drawSolutionPoint(solutionObject);
     }
+    else if(level==8)
+    {
+        var firstRectangle=new Object();
+        firstRectangle.x=200;
+        firstRectangle.y=160;
+        firstRectangle.sizeX=250;
+        firstRectangle.sizeY=500;
+        var secondRectangle=new Object();
+        secondRectangle.x=700;
+        secondRectangle.y=160;
+        secondRectangle.sizeX=250;
+        secondRectangle.sizeY=500;
+        ctx.strokeStyle="#F00";
+        ctx.lineWidth=20;
+        ctx.strokeRect(firstRectangle.x,firstRectangle.y,firstRectangle.sizeX,firstRectangle.sizeY); 
+        ctx.strokeRect(secondRectangle.x,secondRectangle.y,secondRectangle.sizeX,secondRectangle.sizeY); 
+        //mouse inside first rectangle
+        if(mousex>firstRectangle.x-15 && mousex<firstRectangle.x+firstRectangle.sizeX+15 && mousey>firstRectangle.y-15 && mousey<firstRectangle.y+firstRectangle.sizeY+15
+            && (mousex<firstRectangle.x+40 || mousex>firstRectangle.x+firstRectangle.sizeX-40 || mousey<firstRectangle.y+40 || mousey>firstRectangle.y+firstRectangle.sizeY-40)//only on borders
+        )
+        {
+            solutionObject.x=800;
+            solutionObject.y=410;
+        }
+        if(mousex>secondRectangle.x-15 && mousex<secondRectangle.x+secondRectangle.sizeX+15 && mousey>secondRectangle.y-15 && mousey<secondRectangle.y+secondRectangle.sizeY+15
+            && (mousex<secondRectangle.x+40 || mousex>secondRectangle.x+secondRectangle.sizeX-40 || mousey<secondRectangle.y+40 || mousey>secondRectangle.y+secondRectangle.sizeY-40)//only on borders
+        )
+        {
+            solutionObject.x=300;
+            solutionObject.y=410;
+        }
+
+        drawSolutionPoint(solutionObject);
+    }
     //TODO altri livelli qui
 
     //if mouse is inside solutionObject, mouse becomes an hand
@@ -338,7 +414,7 @@ function run()
     }
     else document.body.style.cursor = "default";
 
-    drawDistanceIndicator(solutionObject);
+    drawHUD(solutionObject);
 }
 /*#############
     Funzioni Utili
@@ -452,5 +528,5 @@ window.AutoScaler = function(element, initialWidth, initialHeight, skewAllowance
     
     // Add event listeners and timer based rescale checks:
     window.addEventListener('resize', this.checkRescale);
-    rescalercheck=setInterval(this.checkRescale, 150);
+    rescalercheck=setInterval(this.checkRescale, 1500);
 };
