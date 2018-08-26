@@ -27,9 +27,16 @@ canvasH=canvas.height = 800;//window.innerHeight;
 //canvasW=(canvasH/800)*1200;
 maxDistance=Math.sqrt(canvasW*canvasW+canvasH*canvasH)/4;
 maxIntensity=7;
-var randomWords=["ship","dog","experiment","test","thing","anomaly","cat","horse","giraffe","fish","bottle","club","piece","man","lawyer","zombie","error","explosion","mouse","nugget","meatball","watermelon","message"];
-var randomWordForRandom=//TODO quelle sopra, ma lunghe 6;
-var alphabet=["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H","J","K","L","Z","X","C","V","B","N","M"];
+var randomWords=["absurd","anomaly","bandit","banjo","boiler","bone","book","bottle","breakfast","bridge","broker","card","cat","center","cheese","club","dog","egg","error","experiment","explosion","female","fish","fungus","fusion","game","giraffe","glitch","horse","iceman","infuse","internet","jumper","keyboard","king","lawyer","letter","limit","lobster","man","meatball","message","metal","mouse","movie","mumble","normal","nugget","pancake","phobos","piece","rabbit","random","savage","scream","secure","ship","speed","stasis","substance","table","test","theatre","thing","trip","twist","title","watermelon","wild","zombie","undefined"];
+var randomWordForRandom=[];
+//random words long6
+randomWords.forEach(function(e) {
+    if(e.length==6)
+        randomWordForRandom.push(e);
+});
+var menuFirstWord="game";
+var menuSecondWord="random";
+var menuThirdWord="title";
 
 //controls
 canvas.addEventListener("mousemove",mossoMouse);
@@ -37,7 +44,7 @@ canvas.addEventListener("mousedown",cliccatoMouse);
 canvas.addEventListener("mouseup",rilasciatoMouse);
 window.addEventListener('keyup',keyUp,false);
 
-level=8;//TODO change level here
+level=0;//TODO change level here
 generateLevel();
 activeTask=setInterval(run, 33);
 
@@ -52,7 +59,7 @@ function generateLevel()
     solutionObject.color="#0F0";
     if(level==0)
     {
-
+        animationProgress=1;
         solutionObject.sizeX=60;
         solutionObject.sizeY=60;
         solutionObject.x=canvasW/2-30
@@ -271,6 +278,30 @@ function run()
     if(level==0)
     {
         drawSolutionPoint(solutionObject);
+
+        if(++animationProgress%100==0)
+        {
+            menuFirstWord=randomWords[rand(0,randomWords.length-1)];
+            menuSecondWord=randomWordForRandom[rand(0,randomWordForRandom.length-1)];
+            menuThirdWord=randomWords[rand(0,randomWords.length-1)];
+        }
+        if(Math.round(animationProgress/10)%10==9)
+        {
+            var s = "abcdefghijklmnopqrstuvwxyz";
+            r=rand(4,10);
+            menuFirstWord=Array(r).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join('');
+            r=6;
+            menuSecondWord=Array(r).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join('');
+            r=rand(4,10);
+            menuThirdWord=Array(r).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join('');
+        }
+        ctx.fillStyle="#EEE";
+        ctx.font = "70px Lucida Console";
+        text="This "+menuFirstWord;
+        ctx.fillText(text,350,150);
+        text="has a "+menuSecondWord+" "+menuThirdWord;
+        ctx.fillText(text,190,250);
+        document.title=mousex+" "+mousey;
         
         ctx.fillStyle="#0F0";
         ctx.font = "20px Arial";
