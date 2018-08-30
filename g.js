@@ -9,7 +9,7 @@ var canvasW;
 var canvasH;
 var ctx;
 var activeTask;
-var level=0;
+var level;
 var animationProgress=0;
 var solutionObject=null;
 var randomPlaces=null;
@@ -37,6 +37,9 @@ randomWords.forEach(function(e) {
 var menuFirstWord="game";
 var menuSecondWord="random";
 var menuThirdWord="title";
+var timeObject;
+var loveObject;
+var friendObject;
 
 //controls
 canvas.addEventListener("mousemove",mossoMouse);
@@ -44,7 +47,7 @@ canvas.addEventListener("mousedown",cliccatoMouse);
 canvas.addEventListener("mouseup",rilasciatoMouse);
 window.addEventListener('keyup',keyUp,false);
 
-level=0;//TODO change level here
+level=2;//TODO change level here
 generateLevel();
 activeTask=setInterval(run, 33);
 
@@ -87,6 +90,21 @@ function generateLevel()
         solutionObject.isCircle=true;
         solutionObject.hasRectangle=false;
         solutionObject.alpha=1;
+        timeObject=new Object();
+        timeObject.x=rand(50,canvasW-50);
+        timeObject.y=rand(50,canvasH-50);
+        timeObject.dx=0;
+        timeObject.dy=0;
+        loveObject=new Object();
+        loveObject.x=rand(50,canvasW-50);
+        loveObject.y=rand(50,canvasH-50);
+        loveObject.dx=0;
+        loveObject.dy=0;
+        friendObject=Object=new Object();
+        friendObject.x=rand(50,canvasW-50);
+        friendObject.y=rand(50,canvasH-50);
+        friendObject.dx=0;
+        friendObject.dy=0;
         animationProgress=-20;
     }
     else if(level==3)
@@ -247,8 +265,9 @@ function drawHUD(to)
     
     ctx.restore();
 
-    //check if it is connected, also display yime
+    //check if it is connected, also display time
     ctx.fillStyle="#FFF";
+    ctx.font = "12px Arial";
     if(navigator.onLine)
     {
         var today = new Date();
@@ -301,7 +320,7 @@ function run()
         ctx.fillText(text,350,150);
         text="has a "+menuSecondWord+" "+menuThirdWord;
         ctx.fillText(text,190,250);
-        document.title=mousex+" "+mousey;
+        //document.title=mousex+" "+mousey;
         
         ctx.fillStyle="#0F0";
         ctx.font = "20px Arial";
@@ -370,6 +389,7 @@ function run()
             {
                 solutionObject.x+=solutionObject.dx;
                 solutionObject.y+=solutionObject.dy;
+                //TODO la fisica di timeObject, friendObject e loveObject
             }
         }
         else if(animationProgress>-30)
@@ -381,6 +401,41 @@ function run()
             solutionObject.dx=rand(-5,5);
             solutionObject.dy=rand(-5,5);
         }
+
+        //draw stuff
+        ctx.fillStyle = "#880";
+        ctx.beginPath();
+        ctx.arc(timeObject.x, timeObject.y, 50, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.lineWidth = 5/10;
+        ctx.stroke();
+        ctx.closePath();
+        ctx.font="80px Arial";
+        ctx.fillStyle="#000";
+        ctx.fillText("⧗",timeObject.x-20,timeObject.y+25);
+
+        ctx.fillStyle = "#008";
+        ctx.beginPath();
+        ctx.arc(friendObject.x, friendObject.y, 50, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.lineWidth = 5/10;
+        ctx.stroke();
+        ctx.closePath();
+        ctx.font="80px Arial";
+        ctx.fillStyle="#FFF";
+        ctx.fillText("☺",friendObject.x-40,friendObject.y+25);
+        
+
+        ctx.fillStyle = "#800";
+        ctx.beginPath();
+        ctx.arc(loveObject.x, loveObject.y, 50, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.lineWidth = 5/10;
+        ctx.stroke();
+        ctx.closePath();
+        ctx.font="60px Arial";
+        ctx.fillStyle="#000";
+        ctx.fillText("❤",loveObject.x-30,loveObject.y+25);
         
         
         drawSolutionPoint(solutionObject);
