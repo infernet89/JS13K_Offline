@@ -40,6 +40,10 @@ var menuThirdWord="title";
 var timeObject;
 var loveObject;
 var friendObject;
+var movableObjects;
+var selectedObject=null;
+var oldmousex,oldmousey;
+var cannotSolve;
 
 //controls
 canvas.addEventListener("mousemove",mossoMouse);
@@ -47,12 +51,13 @@ canvas.addEventListener("mousedown",cliccatoMouse);
 canvas.addEventListener("mouseup",rilasciatoMouse);
 window.addEventListener('keyup',keyUp,false);
 
-level=2;//TODO change level here
+level=0;//TODO change level here
 generateLevel();
 activeTask=setInterval(run, 33);
 
 function generateLevel()
 {
+    cannotSolve=false;
     animationProgress=0;
     solutionObject=new Object();
     solutionObject.hasRectangle=true;
@@ -100,11 +105,13 @@ function generateLevel()
         loveObject.y=rand(50,canvasH-50);
         loveObject.dx=0;
         loveObject.dy=0;
-        friendObject=Object=new Object();
+        friendObject=new Object();
         friendObject.x=rand(50,canvasW-50);
         friendObject.y=rand(50,canvasH-50);
         friendObject.dx=0;
         friendObject.dy=0;
+        movableObjects=[friendObject,timeObject,loveObject];
+
         animationProgress=-20;
     }
     else if(level==3)
@@ -150,6 +157,60 @@ function generateLevel()
         solutionObject.x=solX*40;
         solutionObject.y=canvasH-solY*40-10;
         //ctx.fillText(randomPlaces[i][k].char,i*40,canvasH-k*40-10);
+    }
+    else if(level==4)
+    {
+        solutionObject.sizeX=100;
+        solutionObject.sizeY=100;
+        solutionObject.x=-90950;
+        solutionObject.y=600;
+        solutionObject.offsetY=15;
+        solutionObject.isCircle=true;
+        solutionObject.hasRectangle=false;
+        solutionObject.alpha=1;
+        solutionObject.color="#0A0";
+    }
+    else if(level==5)
+    {
+        solutionObject.sizeX=100;
+        solutionObject.sizeY=100;
+        solutionObject.x=550;
+        solutionObject.y=500;
+        solutionObject.offsetY=15;
+        solutionObject.isCircle=true;
+        solutionObject.hasRectangle=false;
+        solutionObject.alpha=1;
+        solutionObject.color="#FFF";
+        movableObjects=[];
+        for(i=0;i<9;i++)
+        {
+            tmp=new Object();
+            tmp.x=rand(100,canvasW-100);
+            tmp.y=rand(100,canvasH-100);
+            if(i==0)
+                tmp.color="#A00";
+            else if(i==1)
+                tmp.color="#0A0";
+            else if(i==2)
+                tmp.color="#00A";
+            else if(i==3)
+                tmp.color="#0AA";
+            else if(i==4)
+                tmp.color="#A0A";
+            else if(i==5)
+                tmp.color="#AA0";
+            else if(i==6)
+                tmp.color="#A70";
+            else if(i==7)
+                tmp.color="#A07";
+            else if(i==8)
+                tmp.color="#7A0";
+            tmp.sizeX=50;
+            tmp.sizeY=50;
+            tmp.alpha=0.8;
+            movableObjects.push(tmp);
+        }
+
     }
     else if(level==8)
     {
@@ -389,10 +450,34 @@ function run()
             {
                 solutionObject.x+=solutionObject.dx;
                 solutionObject.y+=solutionObject.dy;
-                //TODO la fisica di timeObject, friendObject e loveObject
+                //la fisica di timeObject, friendObject e loveObject
+                for(i in movableObjects)
+                {
+                    o=movableObjects[i];
+                    if(distanceFrom(o,solutionObject)<60)
+                    {
+                        o.dx=(o.x-solutionObject.x)/3;
+                        o.dy=(o.y-solutionObject.y)/3;
+                    }
+                    //rimbalza
+                    if(o.x+o.dx>canvasW || o.x+o.dx<60)
+                        o.dx*=-1;
+                    if(o.y+o.dy+60>canvasH || o.y+o.dy<60)
+                        o.dy*=-1;
+                    //muovi
+                    o.x+=o.dx;
+                    o.y+=o.dy;
+                    //attrito
+                    o.dx*=0.8;
+                    o.dy*=0.8;
+                    if(Math.abs(o.dx)<0.5)
+                        o.dx=0;
+                    if(Math.abs(o.dy)<0.5)
+                        o.dy=0;
+                }
             }
         }
-        else if(animationProgress>-30)
+        else if(animationProgress>-25)
             solutionObject.alpha=1;
         else
         {
@@ -452,6 +537,103 @@ function run()
             }
         drawSolutionPoint(solutionObject);
     }
+    else if(level==4)
+    {
+        //semaforo
+        ctx.fillStyle="#888";
+        ctx.fillRect(930,160,140,460);
+        ctx.beginPath();
+        ctx.fillStyle = "#100";
+        ctx.arc(1000, 230, 50, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.fillStyle = "#110";
+        ctx.arc(1000, 390, 50, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.fillStyle = "#010";
+        ctx.arc(1000, 550, 50, 0, 2 * Math.PI, false);
+        ctx.fill();
+        //red
+        if(animationProgress<200)
+        {
+            ctx.fillStyle = "#A00";
+            ctx.beginPath();
+            ctx.arc(1000, 230, 50, 0, 2 * Math.PI, false);
+            ctx.fill();
+            ctx.lineWidth = 5/10;
+            ctx.strokeStyle = "#FFF";
+            ctx.stroke();
+            ctx.closePath();
+            if(mousex==oldmousex && mousey==oldmousey)
+            {
+                animationProgress++;
+            }
+            else animationProgress=0;
+
+        }
+        //yellow
+        else if(animationProgress<300)
+        {
+            ctx.fillStyle = "#AA0";
+            ctx.beginPath();
+            ctx.arc(1000, 390, 50, 0, 2 * Math.PI, false);
+            ctx.fill();
+            ctx.lineWidth = 5/10;
+            ctx.strokeStyle = "#FFF";
+            ctx.stroke();
+            ctx.closePath();
+            if(mousex==oldmousex && mousey==oldmousey)
+            {
+                animationProgress++;
+            }
+            else animationProgress=0;
+        }
+        else if(animationProgress)
+        {
+            solutionObject.x=950;
+            drawSolutionPoint(solutionObject);
+        }     
+        oldmousex=mousex;
+        oldmousey=mousey;
+    }
+    else if(level==5)
+    {
+        if(!dragging)
+            selectedObject=null;
+        if(selectedObject!=null)
+        {
+            selectedObject.x=mousex;
+            selectedObject.y=mousey;
+        }
+        drawSolutionPoint(solutionObject);
+        ctx.save();
+        ctx.compositeOperation="lighter";
+        for(i in movableObjects)
+        {
+            o=movableObjects[i];
+            ctx.globalAlpha=o.alpha;
+            ctx.fillStyle = o.color;
+            ctx.beginPath();
+            ctx.arc(o.x, o.y, o.sizeX, 0, 2 * Math.PI, false);
+            ctx.fill();
+            ctx.closePath();
+            if(selectedObject==null)
+            {
+                if(mousex>o.x-o.sizeX && mousex<o.x+o.sizeX && mousey>o.y-o.sizeY && mousey<o.y+o.sizeY)
+                    selectedObject=o;
+            }
+            if(o.color=="#0A0")
+            {
+                dist=Math.sqrt((o.x-solutionObject.x-solutionObject.sizeX/2)*(o.x-solutionObject.x-solutionObject.sizeX/2)+(o.y-solutionObject.y+solutionObject.sizeY/2)*(o.y-solutionObject.y+solutionObject.sizeY/2));
+                if(dist<5)
+                    cannotSolve=false;
+                else cannotSolve=true;
+            }
+            
+        }
+        ctx.restore();
+    }
     else if(level==8)
     {
         var firstRectangle=new Object();
@@ -488,8 +670,9 @@ function run()
     }
     //TODO altri livelli qui
 
+    drawHUD(solutionObject);
     //if mouse is inside solutionObject, mouse becomes an hand
-    if(mousex>solutionObject.x && mousex<solutionObject.x+solutionObject.sizeX && mousey>solutionObject.y-solutionObject.sizeY && mousey<solutionObject.y)
+    if(mousex>solutionObject.x && mousex<solutionObject.x+solutionObject.sizeX && mousey>solutionObject.y-solutionObject.sizeY && mousey<solutionObject.y && !cannotSolve)
     {
         document.body.style.cursor = "pointer";
         if(dragging)
@@ -499,8 +682,6 @@ function run()
         }
     }
     else document.body.style.cursor = "default";
-
-    drawHUD(solutionObject);
 }
 /*#############
     Funzioni Utili
@@ -510,6 +691,10 @@ function rand(da, a)
     if(da>a) return rand(a,da);
     a=a+1;
     return Math.floor(Math.random()*(a-da)+da);
+}
+function distanceFrom(a,b)
+{
+    return Math.sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y));
 }
 
 //controlli mobile
