@@ -95,22 +95,32 @@ function generateLevel()
         solutionObject.isCircle=true;
         solutionObject.hasRectangle=false;
         solutionObject.alpha=1;
-        timeObject=new Object();
-        timeObject.x=rand(50,canvasW-50);
-        timeObject.y=rand(50,canvasH-50);
-        timeObject.dx=0;
-        timeObject.dy=0;
-        loveObject=new Object();
-        loveObject.x=rand(50,canvasW-50);
-        loveObject.y=rand(50,canvasH-50);
-        loveObject.dx=0;
-        loveObject.dy=0;
-        friendObject=new Object();
-        friendObject.x=rand(50,canvasW-50);
-        friendObject.y=rand(50,canvasH-50);
-        friendObject.dx=0;
-        friendObject.dy=0;
-        movableObjects=[friendObject,timeObject,loveObject];
+        movableObjects=[];
+        for(i=0;i<16;i++)
+        {
+            tmp=new Object();
+            tmp.x=rand(50,canvasW-50);
+            tmp.y=rand(50,canvasH-50);
+            tmp.dx=0;
+            tmp.dy=0;
+            if(i%3==0)
+            {
+                tmp.kind="time";
+                tmp.color="#880"
+            }
+            else if(i%3==1)
+            {
+                tmp.kind="friend";
+                tmp.color="#4267b2"
+            }
+            else
+            {
+                tmp.kind="love";
+                tmp.color="#800"
+            }
+            movableObjects.push(tmp);
+        }
+        
 
         animationProgress=-20;
     }
@@ -212,6 +222,33 @@ function generateLevel()
         }
 
     }
+    else if(level==6)
+    {//5 o 8 non compare
+        animationProgress=1;
+        solutionObject.sizeX=60;
+        solutionObject.sizeY=60;
+        solutionObject.x=canvasW/2-30
+        solutionObject.y=canvasH-120;
+        movableObjects=[];
+        tmp=new Object();
+        tmp.x=510;
+        tmp.y=225;
+        tmp.sizeX=170;
+        tmp.sizeY=60;
+        movableObjects.push(tmp);
+        cannotSolve=true;
+    }
+    else if(level==7)
+    {
+        movableObjects=[];
+        solutionObject.x=-9999;
+        tmp=new Object();
+        tmp.x=100;
+        tmp.y=100;
+        tmp.sizeX=100;
+        tmp.sizeY=200;
+        movableObjects.push(tmp);
+    }
     else if(level==8)
     {
         solutionObject.sizeX=45;
@@ -292,7 +329,7 @@ function drawHUD(to)
     
     ctx.save();
     //ctx.translate(mousex,mousey);//follow the mouse
-    ctx.translate(canvasW-30    ,20);//on top-right
+    ctx.translate(canvasW-30,20);//on top-right
     if(distance<-3)
         ctx.fillStyle="#F00";
     else if(distance>maxIntensity-0.8)
@@ -459,6 +496,17 @@ function run()
                         o.dx=(o.x-solutionObject.x)/3;
                         o.dy=(o.y-solutionObject.y)/3;
                     }
+                    //collisioni fra loro
+                    for(k in movableObjects)
+                    {
+                        if(i==k) continue;
+                        o2=movableObjects[k];
+                        if(distanceFrom(o,o2)<100)
+                        {
+                            o.dx=100/(o.x-o2.x);
+                            o.dy=100/(o.y-o2.y);
+                        }
+                    }
                     //rimbalza
                     if(o.x+o.dx>canvasW || o.x+o.dx<60)
                         o.dx*=-1;
@@ -468,8 +516,8 @@ function run()
                     o.x+=o.dx;
                     o.y+=o.dy;
                     //attrito
-                    o.dx*=0.8;
-                    o.dy*=0.8;
+                    o.dx*=0.95;
+                    o.dy*=0.95;
                     if(Math.abs(o.dx)<0.5)
                         o.dx=0;
                     if(Math.abs(o.dy)<0.5)
@@ -488,41 +536,34 @@ function run()
         }
 
         //draw stuff
-        ctx.fillStyle = "#880";
-        ctx.beginPath();
-        ctx.arc(timeObject.x, timeObject.y, 50, 0, 2 * Math.PI, false);
-        ctx.fill();
-        ctx.lineWidth = 5/10;
-        ctx.stroke();
-        ctx.closePath();
-        ctx.font="80px Arial";
-        ctx.fillStyle="#000";
-        ctx.fillText("⧗",timeObject.x-20,timeObject.y+25);
-
-        ctx.fillStyle = "#008";
-        ctx.beginPath();
-        ctx.arc(friendObject.x, friendObject.y, 50, 0, 2 * Math.PI, false);
-        ctx.fill();
-        ctx.lineWidth = 5/10;
-        ctx.stroke();
-        ctx.closePath();
-        ctx.font="80px Arial";
-        ctx.fillStyle="#FFF";
-        ctx.fillText("☺",friendObject.x-40,friendObject.y+25);
-        
-
-        ctx.fillStyle = "#800";
-        ctx.beginPath();
-        ctx.arc(loveObject.x, loveObject.y, 50, 0, 2 * Math.PI, false);
-        ctx.fill();
-        ctx.lineWidth = 5/10;
-        ctx.stroke();
-        ctx.closePath();
-        ctx.font="60px Arial";
-        ctx.fillStyle="#000";
-        ctx.fillText("❤",loveObject.x-30,loveObject.y+25);
-        
-        
+        for(i in movableObjects)
+        {
+            o=movableObjects[i];
+            ctx.fillStyle=o.color;
+            ctx.beginPath();
+            ctx.arc(o.x, o.y, 50, 0, 2 * Math.PI, false);
+            ctx.fill();
+            ctx.lineWidth = 5/10;
+            ctx.stroke();
+            ctx.closePath();
+            ctx.fillStyle="#000";
+            if(o.kind=="time")
+            {
+                ctx.font="80px Arial";
+                ctx.fillText("⧗",o.x-20,o.y+25);
+            }
+            else if(o.kind=="love")
+            {
+                ctx.font="60px Arial";
+                ctx.fillText("❤",o.x-30,o.y+25);
+            }
+            else
+            {
+                ctx.font="80px Arial";
+                ctx.fillText("☺",o.x-40,o.y+25);
+            }
+            
+        }
         drawSolutionPoint(solutionObject);
 
     }
@@ -633,6 +674,44 @@ function run()
             
         }
         ctx.restore();
+    }
+    //In the jungle, you must wait, until the dice read 5 or 8.
+    else if(level==6)
+    {
+        ctx.font="60px Arial";
+        toWrite="In the jungle,";
+        toWrite=toWrite.substring(0,-24+animationProgress/2);  
+        ctx.fillText(toWrite,350,270);
+        toWrite="you must wait,";
+        toWrite=toWrite.substring(0,-51+animationProgress/2);  
+        ctx.fillText(toWrite,350,360);
+        toWrite="until the time read 5 or 8.";
+        toWrite=toWrite.substring(0,-78+animationProgress/2);  
+        ctx.fillText(toWrite,350,450);
+        
+        var today = new Date();
+        time=today.getHours()+""+today.getMinutes()+""+today.getSeconds();
+        if(cannotSolve)
+            solutionObject.color="#A00";
+        else solutionObject.color="#0F0";o=movableObjects[0];
+
+        //ctx.fillRect(o.x,o.y,o.sizeX,o.sizeY);
+        if(mousex>o.x && mousex<o.x+o.sizeX && mousey>o.y && mousey<o.y+o.sizeY)
+        {
+            solutionObject.color="#0F0";
+            if(time.includes("5") || time.includes("8"))
+                cannotSolve=false;
+        }
+        else if(!time.includes("5") && !time.includes("8"))
+            cannotSolve=true;
+        
+       
+        drawSolutionPoint(solutionObject);
+        animationProgress++;
+    }
+    else if(level==7)
+    {//monty hall problem
+
     }
     else if(level==8)
     {
