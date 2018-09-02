@@ -46,6 +46,8 @@ var oldmousex,oldmousey;
 var cannotSolve;
 var inputDelay=0;
 var prevMousex,prevMousey=-1;
+var repetition=0;
+var carPossibilities=[];
 
 //controls
 canvas.addEventListener("mousemove",mossoMouse);
@@ -89,6 +91,7 @@ function generateLevel()
     }
     else if(level==2)
     {
+        repetition=0;
         solutionObject.sizeX=45;
         solutionObject.sizeY=45;
         solutionObject.x=100
@@ -183,6 +186,17 @@ function generateLevel()
         solutionObject.hasRectangle=false;
         solutionObject.alpha=1;
         solutionObject.color="#0A0";
+        movableObjects=[];
+        carPossibilities=["🚗","🚋","🚐","🚑","🚒","🚓","🚕","🚙","🚚","🚛","🚜"];
+        for(i=0;i<8;i++)
+        {
+            tmp=new Object();
+            tmp.x=rand(0,canvasW);
+            tmp.y=canvasH-10-20*i;
+            tmp.dx=rand(-20,20);
+            tmp.char=carPossibilities[rand(0,carPossibilities.length-1)];
+            movableObjects.push(tmp);
+        }
     }
     else if(level==5)
     {
@@ -574,10 +588,11 @@ function run()
             solutionObject.alpha=1;
         else
         {
-            solutionObject.alpha=0;
+            solutionObject.alpha=0+repetition;
             animationProgress=rand(100,600);
             solutionObject.dx=rand(-5,5);
             solutionObject.dy=rand(-5,5);
+            repetition+=0.005;
         }
 
         //draw stuff
@@ -690,6 +705,27 @@ function run()
         {
             solutionObject.x=950;
             drawSolutionPoint(solutionObject);
+        }
+        ctx.fillStyle="#FFF";
+        ctx.font="24px Arial";
+        for(i in movableObjects)
+        {
+            o=movableObjects[i];
+            o.x+=o.dx;
+            if(o.x<-50)
+            {
+                o.x=canvasW+50;
+                o.char=carPossibilities[rand(0,carPossibilities.length-1)];
+                o.dx=rand(-20,20);
+            }
+            else if(o.x>canvasW+50)
+            {
+                o.x=-50;
+                o.dx=rand(-20,20);
+                o.char=carPossibilities[rand(0,carPossibilities.length-1)];
+            }
+            ctx.fillText(o.char,o.x,o.y);
+            //console.log(o.x,o.y);
         }     
         oldmousex=mousex;
         oldmousey=mousey;
