@@ -44,6 +44,7 @@ var movableObjects;
 var selectedObject=null;
 var oldmousex,oldmousey;
 var cannotSolve;
+var inputDelay=0;
 
 //controls
 canvas.addEventListener("mousemove",mossoMouse);
@@ -51,7 +52,7 @@ canvas.addEventListener("mousedown",cliccatoMouse);
 canvas.addEventListener("mouseup",rilasciatoMouse);
 window.addEventListener('keyup',keyUp,false);
 
-level=0;//TODO change level here
+level=7;//TODO change level here
 generateLevel();
 activeTask=setInterval(run, 33);
 
@@ -242,11 +243,32 @@ function generateLevel()
     {
         movableObjects=[];
         solutionObject.x=-9999;
+        solutionObject.sizeX=100;
+        solutionObject.sizeY=100;
+        solutionObject.offsetY=15;
+        solutionObject.isCircle=true;
+        solutionObject.hasRectangle=false;
+        solutionObject.alpha=0;
         tmp=new Object();
-        tmp.x=100;
-        tmp.y=100;
-        tmp.sizeX=100;
-        tmp.sizeY=200;
+        tmp.x=250;
+        tmp.y=250;
+        tmp.sizeX=150;
+        tmp.sizeY=300;
+        tmp.isClosed=true;
+        movableObjects.push(tmp);
+        tmp=new Object();
+        tmp.x=500;
+        tmp.y=250;
+        tmp.sizeX=150;
+        tmp.sizeY=300;
+        tmp.isClosed=true;
+        movableObjects.push(tmp);
+        tmp=new Object();
+        tmp.x=750;
+        tmp.y=250;
+        tmp.sizeX=150;
+        tmp.sizeY=300;
+        tmp.isClosed=true;
         movableObjects.push(tmp);
     }
     else if(level==8)
@@ -381,6 +403,11 @@ function drawHUD(to)
 }
 function run()
 {
+    if(inputDelay>0)
+    {
+        inputDelay--;
+        dragging=false;
+    }
 	ctx.clearRect(0, 0, canvasW, canvasH);
     ctx.fillStyle="#000";
     ctx.fillRect(0,0,canvasW,canvasH);
@@ -678,6 +705,7 @@ function run()
     //In the jungle, you must wait, until the dice read 5 or 8.
     else if(level==6)
     {
+        ctx.fillStyle="#EEE";
         ctx.font="60px Arial";
         toWrite="In the jungle,";
         toWrite=toWrite.substring(0,-24+animationProgress/2);  
@@ -711,7 +739,132 @@ function run()
     }
     else if(level==7)
     {//monty hall problem
+        ctx.fillStyle="#EEE";
+        ctx.font="60px Arial";
+        if(animationProgress==0)
+            ctx.fillText("Which door has what are you looking for?",50,150);
+        else if(animationProgress==1)
+            ctx.fillText("Not this. Want to change your mind?",50,150);
+        else if(animationProgress==2)
+            ctx.fillText("Wrong decision.",50,150);
+        else if(animationProgress==3)
+            ctx.fillText("Smart move!",50,150);
+        //draw doors
+        for(i in movableObjects)
+        {
+            o=movableObjects[i];
+            ctx.fillStyle="#29180f";
+            ctx.fillRect(o.x,o.y,o.sizeX,o.sizeY);
+            if(o.isClosed)
+            {
+                ctx.fillStyle = "#874e32";
+                ctx.fillRect(o.x+5,o.y+5,o.sizeX-10,o.sizeY-10);
+                ctx.fillStyle="#29180f";
+                ctx.beginPath();
+                ctx.arc(o.x+o.sizeX-20, o.y+o.sizeY/2, 10, 0, 2 * Math.PI, false);
+                ctx.fill();
+            }
+            else
+            {
+                ctx.fillStyle="#000";
+                ctx.fillRect(o.x+5,o.y+5,o.sizeX-10,o.sizeY-10);
+                ctx.fillStyle = "#874e32";
+                ctx.fillRect(o.x-5,o.y+5,10,o.sizeY-10);
+                ctx.fillStyle="#29180f";
+                ctx.fillRect(o.x-15,o.y+o.sizeY/2-10,10,20);
+                if(animationProgress==1)
+                {
+                    //draw a skull
+                    ctx.fillStyle="#F00";
+                    ctx.font="99px Arial";
+                    ctx.fillText("☠",o.x+30,o.y+o.sizeY/2+30);
+                }
+                else if(animationProgress==2)
+                {
+                    ctx.fillStyle="#F00";
+                    ctx.font="99px Arial";
+                    ctx.fillText("☠",o.x+30,o.y+o.sizeY/2+30);
+                }
+                else if(animationProgress==3 && i!=solutionDoor)
+                {
+                    ctx.fillStyle="#F00";
+                    ctx.font="99px Arial";
+                    ctx.fillText("☠",o.x+30,o.y+o.sizeY/2+30);
+                }
+            }
+            ctx.closePath();
+            //need to choose the first door
+            if(animationProgress==0)
+            {
+                if(dragging && mousex>o.x && mousex<o.x+o.sizeX && mousey>o.y && mousey<o.y+o.sizeY)
+                {
+                    firstDoorChoiche=i;
+                    do
+                    {
+                        r=rand(0,2);
+                    }while(r==i);
+                    movableObjects[r].isClosed=false;
+                    animationProgress=1;
+                    inputDelay=30;
+                }
+            }
+            //needs to change his mind
+            else if(animationProgress==1)
+            {
+                if(dragging && mousex>o.x && mousex<o.x+o.sizeX && mousey>o.y && mousey<o.y+o.sizeY && o.isClosed)
+                {
+                    if(i==firstDoorChoiche)
+                    {
+                        o.isClosed=false;
+                        animationProgress=2;
+                        sol=-1;
+                        do{
+                            sol++;
+                        }while(!movableObjects[sol].isClosed);
+                        solutionObject.x=movableObjects[sol].x+movableObjects[sol].sizeX/2-45;
+                        solutionObject.y=movableObjects[sol].y+movableObjects[sol].sizeY/2+40;
+                        solutionObject.alpha=0;
+                        cannotSolve=true;
+                    }
+                    else
+                    {
+                        animationProgress=3;
+                        o.isClosed=false;
+                        solutionDoor=i;
+                        solutionObject.x=movableObjects[i].x+movableObjects[i].sizeX/2-45;
+                        solutionObject.y=movableObjects[i].y+movableObjects[i].sizeY/2+40;
+                        solutionObject.alpha=1;
+                        solutionObject.color="#0F0";
+                        cannotSolve=false;
+                        dragging=false;
+                        inputDelay=30;
+                    }
+                }
+            }
+            else if(animationProgress==2)
+            {
+                if(dragging && mousex>o.x && mousex<o.x+o.sizeX && mousey>o.y && mousey<o.y+o.sizeY && o.isClosed)
+                {
+                    o.isClosed=false;
+                    solutionObject.alpha=1;
+                    solutionObject.color="#A00";
+                    inputDelay=30;
+                    dragging=false;
+                }
+            }
+        }
+        if(animationProgress==2)
+        {
+            if(dragging && mousex>solutionObject.x && mousex<solutionObject.x+solutionObject.sizeX && mousey>solutionObject.y-solutionObject.sizeY && mousey<solutionObject.y && solutionObject.alpha==1)
+            {
+                generateLevel();//restart monti hall problem
+                inputDelay=30;
+            }
+        }
 
+        //DEBUG
+        drawSolutionPoint(solutionObject);
+        //document.title=mousex+" "+mousey;
     }
     else if(level==8)
     {
