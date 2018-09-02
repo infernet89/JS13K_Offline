@@ -45,15 +45,17 @@ var selectedObject=null;
 var oldmousex,oldmousey;
 var cannotSolve;
 var inputDelay=0;
-var listOfMousePositions=[];
+var prevMousex,prevMousey=-1;
 
 //controls
 canvas.addEventListener("mousemove",mossoMouse);
 canvas.addEventListener("mousedown",cliccatoMouse);
 canvas.addEventListener("mouseup",rilasciatoMouse);
-window.addEventListener('keyup',keyUp,false);
+//canvas.addEventListener("contextmenu",sparitoMouse);
+window.addEventListener("blur",sparitoMouse);
+//window.addEventListener('keyup',keyUp,false);
 
-level=8;//TODO change level here
+level=0;//TODO change level here
 generateLevel();
 activeTask=setInterval(run, 33);
 
@@ -297,6 +299,7 @@ function generateLevel()
         solutionObject.isCircle=true;
         solutionObject.hasRectangle=false;
         solutionObject.alpha=1;
+        inputDelay=50;
     }
 }
 function drawSolutionPoint(o)
@@ -926,28 +929,53 @@ function run()
         ctx.strokeRect(firstRectangle.x,firstRectangle.y,firstRectangle.sizeX,firstRectangle.sizeY); 
         ctx.strokeRect(secondRectangle.x,secondRectangle.y,secondRectangle.sizeX,secondRectangle.sizeY);
 
-        for(i in listOfMousePositions)
+        insideFirst=false;
+        insideSecond=false;
+
+        //mouse inside first rectangle
+        if(mousex>firstRectangle.x-15 && mousex<firstRectangle.x+firstRectangle.sizeX+15 && mousey>firstRectangle.y-15 && mousey<firstRectangle.y+firstRectangle.sizeY+15
+        && (mousex<firstRectangle.x+40 || mousex>firstRectangle.x+firstRectangle.sizeX-40 || mousey<firstRectangle.y+40 || mousey>firstRectangle.y+firstRectangle.sizeY-40)//only on borders
+        )
         {
-            mousex=listOfMousePositions[i].x;
-            mousey=listOfMousePositions[i].y;
-            //mouse inside first rectangle
-            if(mousex>firstRectangle.x-15 && mousex<firstRectangle.x+firstRectangle.sizeX+15 && mousey>firstRectangle.y-15 && mousey<firstRectangle.y+firstRectangle.sizeY+15
-            && (mousex<firstRectangle.x+40 || mousex>firstRectangle.x+firstRectangle.sizeX-40 || mousey<firstRectangle.y+40 || mousey>firstRectangle.y+firstRectangle.sizeY-40)//only on borders
-            )
+            solutionObject.x=800;
+            solutionObject.y=410;
+        }
+        else if(mousex>secondRectangle.x-15 && mousex<secondRectangle.x+secondRectangle.sizeX+15 && mousey>secondRectangle.y-15 && mousey<secondRectangle.y+secondRectangle.sizeY+15
+            && (mousex<secondRectangle.x+40 || mousex>secondRectangle.x+secondRectangle.sizeX-40 || mousey<secondRectangle.y+40 || mousey>secondRectangle.y+secondRectangle.sizeY-40)//only on borders
+        )
+        {
+            solutionObject.x=300;
+            solutionObject.y=410;
+        }
+        else if(mousex>firstRectangle.x-15 && mousex<firstRectangle.x+firstRectangle.sizeX+15 && mousey>firstRectangle.y-15 && mousey<firstRectangle.y+firstRectangle.sizeY+15)
+        {
+            insideFirst=true;
+        }
+        else if(mousex>secondRectangle.x-15 && mousex<secondRectangle.x+secondRectangle.sizeX+15 && mousey>secondRectangle.y-15 && mousey<secondRectangle.y+secondRectangle.sizeY+15)
+        {
+            insideSecond=true;
+        }
+        //document.title=prevMousex+" "+prevMousey;
+        //check if it always been
+        mx=prevMousex;
+        my=prevMousey;
+        //mouse was not here
+        if(mx!=-1 && my!=-1)
+        {
+            //one of the point was not inside
+            if(insideFirst && !(mx>firstRectangle.x-15 && mx<firstRectangle.x+firstRectangle.sizeX+15 && my>firstRectangle.y-15 && my<firstRectangle.y+firstRectangle.sizeY+15))
             {
                 solutionObject.x=800;
                 solutionObject.y=410;
             }
-            if(mousex>secondRectangle.x-15 && mousex<secondRectangle.x+secondRectangle.sizeX+15 && mousey>secondRectangle.y-15 && mousey<secondRectangle.y+secondRectangle.sizeY+15
-                && (mousex<secondRectangle.x+40 || mousex>secondRectangle.x+secondRectangle.sizeX-40 || mousey<secondRectangle.y+40 || mousey>secondRectangle.y+secondRectangle.sizeY-40)//only on borders
-            )
+            if(insideSecond && !(mx>secondRectangle.x-15 && mx<secondRectangle.x+secondRectangle.sizeX+15 && my>secondRectangle.y-15 && my<secondRectangle.y+secondRectangle.sizeY+15))
             {
                 solutionObject.x=300;
                 solutionObject.y=410;
             }
-        }        
-        listOfMousePositions=[];
-
+        }
+        prevMousex=mousex;
+            prevMousey=mousey;
         drawSolutionPoint(solutionObject);
     }
     else if(level==9)
@@ -962,10 +990,13 @@ function run()
         ctx.fillRect(100,105,5,canvasH-205);
         ctx.fillRect(1100,105,5,canvasH-205);
         ctx.fillRect(100,105,1000,5);
+        ctx.fillStyle="#FFF";
+        ctx.font="10px Arial";
+        ctx.fillText("Loading ad....",110,120);
 
-        if(navigator.onLine)
+        if(navigator.onLine && ++animationProgress>40)
         {
-            animationProgress++;
+            //animationProgress++;
             cannotSolve=true;
             ctx.fillStyle="#CCC";
             ctx.fillRect(105,110,995,585);
@@ -1012,8 +1043,46 @@ function run()
         else cannotSolve=false;
 
         //document.title=mousex+" "+mousey;
+        //commentary
+        ctx.fillStyle="#777";
+        ctx.font="24px Arial";
+        ctx.fillText("Just the pure essence of what are you looking for:",580,750);
+        ctx.fillText("you need to ..",960,780);
     }
-    //TODO ending here
+    else if(level==10)
+    {
+        animationProgress++;
+        //commentary
+        ctx.fillStyle="#777";
+        ctx.font="180px Arial";
+        ctx.fillText("GO OUTSIDE!",10,240);
+        ctx.font="24px Arial";
+        toWrite="You just discovered that being always connected prevents you from reaching your goals.";
+        toWrite=toWrite.substring(0,animationProgress);  
+        ctx.fillText(toWrite,50,350);
+        toWrite="Internet can become and addiction.";
+        toWrite=toWrite.substring(0,-86+animationProgress);  
+        ctx.fillText(toWrite,50,380);
+        toWrite="Try to live OFFLINE.";
+        toWrite=toWrite.substring(0,-120+animationProgress);  
+        ctx.fillText(toWrite,50,410);
+        ctx.fillStyle="#abb";
+        ctx.fillRect(285,425,600,canvasH-440);
+        ctx.fillStyle="#f0af19";
+        ctx.fillRect(285,425,600,5);
+        ctx.fillRect(285,canvasH-15,600,5);
+        ctx.fillRect(285,425,5,canvasH-440);
+        ctx.fillRect(880,425,5,canvasH-440);
+
+        ctx.font="45px Tiomes New Roman";
+        ctx.fillStyle="#000";
+        ctx.fillText("I've completed a stupid game",330,500);
+        ctx.fillText("with a random title and all I've",315,550);
+        ctx.fillText("got was this stupid certificate.",320,600);
+        ctx.fillText("  🎀CONGRATULATIONS🎀",290,750);
+
+        document.title=mousex+" "+mousey;
+    }
 
     drawHUD(solutionObject);
     //if mouse is inside solutionObject, mouse becomes an hand
@@ -1079,15 +1148,16 @@ function mossoMouse(evt)
     var rect = canvas.getBoundingClientRect();
     mousex=(evt.clientX-rect.left)/(rect.right-rect.left)*canvasW;
     mousey=(evt.clientY-rect.top)/(rect.bottom-rect.top)*canvasH;
-    var o=new Object();
-    o.x=mousex;
-    o.y=mousey;
-    listOfMousePositions.push(o);
 }
 function rilasciatoMouse(evt)
 {
     dragging=false;    
 }
+function sparitoMouse(evt)
+{
+    mousex=mousey=-1;
+}
+/*
 function keyUp(e) {
     //alert(e.keyCode);
     if(e.keyCode==77 || e.keyCode==83)//m OR s
@@ -1095,7 +1165,7 @@ function keyUp(e) {
         //TODO enable/disable sound
         e=e;
     }
-}
+}*/
 window.AutoScaler = function(element, initialWidth, initialHeight, skewAllowance){
     var self = this;
     
