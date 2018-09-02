@@ -52,7 +52,7 @@ canvas.addEventListener("mousedown",cliccatoMouse);
 canvas.addEventListener("mouseup",rilasciatoMouse);
 window.addEventListener('keyup',keyUp,false);
 
-level=7;//TODO change level here
+level=0;//TODO change level here
 generateLevel();
 activeTask=setInterval(run, 33);
 
@@ -288,6 +288,14 @@ function generateLevel()
     {
         clearInterval(activeTask);
         activeTask=setInterval(run, 33);
+        solutionObject.sizeX=45;
+        solutionObject.sizeY=45;
+        solutionObject.x=canvasW/2;
+        solutionObject.y=canvasH/2;
+        solutionObject.offsetY=-15;
+        solutionObject.isCircle=true;
+        solutionObject.hasRectangle=false;
+        solutionObject.alpha=1;
     }
 }
 function drawSolutionPoint(o)
@@ -777,19 +785,19 @@ function run()
                     //draw a skull
                     ctx.fillStyle="#F00";
                     ctx.font="99px Arial";
-                    ctx.fillText("☠",o.x+30,o.y+o.sizeY/2+30);
+                    ctx.fillText("🐐",o.x+10,o.y+o.sizeY/2+30);
                 }
                 else if(animationProgress==2)
                 {
                     ctx.fillStyle="#F00";
                     ctx.font="99px Arial";
-                    ctx.fillText("☠",o.x+30,o.y+o.sizeY/2+30);
+                    ctx.fillText("🐐",o.x+10,o.y+o.sizeY/2+30);
                 }
                 else if(animationProgress==3 && i!=solutionDoor)
                 {
                     ctx.fillStyle="#F00";
                     ctx.font="99px Arial";
-                    ctx.fillText("☠",o.x+30,o.y+o.sizeY/2+30);
+                    ctx.fillText("🐐",o.x+10,o.y+o.sizeY/2+30);
                 }
             }
             ctx.closePath();
@@ -846,7 +854,7 @@ function run()
                 if(dragging && mousex>o.x && mousex<o.x+o.sizeX && mousey>o.y && mousey<o.y+o.sizeY && o.isClosed)
                 {
                     o.isClosed=false;
-                    solutionObject.alpha=1;
+                    solutionObject.alpha=0.8;
                     solutionObject.color="#A00";
                     inputDelay=30;
                     dragging=false;
@@ -855,16 +863,13 @@ function run()
         }
         if(animationProgress==2)
         {
-            if(dragging && mousex>solutionObject.x && mousex<solutionObject.x+solutionObject.sizeX && mousey>solutionObject.y-solutionObject.sizeY && mousey<solutionObject.y && solutionObject.alpha==1)
+            if(dragging && mousex>solutionObject.x && mousex<solutionObject.x+solutionObject.sizeX && mousey>solutionObject.y-solutionObject.sizeY && mousey<solutionObject.y && solutionObject.alpha>0.5)
             {
                 generateLevel();//restart monti hall problem
                 inputDelay=30;
             }
         }
-
-        //DEBUG
         drawSolutionPoint(solutionObject);
-        //document.title=mousex+" "+mousey;
     }
     else if(level==8)
     {
@@ -900,7 +905,70 @@ function run()
 
         drawSolutionPoint(solutionObject);
     }
-    //TODO altri livelli qui
+    else if(level==9)
+    {
+        drawSolutionPoint(solutionObject);
+        //riquadro ad
+        ctx.fillStyle="#874e32";
+        ctx.fillRect(300,canvasH-100,20,100);
+        ctx.fillRect(900,canvasH-100,20,100);
+        ctx.fillStyle="#29180f";
+        ctx.fillRect(100,canvasH-105,1000,5);
+        ctx.fillRect(100,105,5,canvasH-205);
+        ctx.fillRect(1100,105,5,canvasH-205);
+        ctx.fillRect(100,105,1000,5);
+
+        if(navigator.onLine)
+        {
+            animationProgress++;
+            cannotSolve=true;
+            ctx.fillStyle="#CCC";
+            ctx.fillRect(105,110,995,585);
+            ctx.font="180px Arial";
+            ctx.fillStyle="#7f41f1";
+            ctx.fillText("Totally fake",150,300);
+            ctx.font="130px Arial";
+            if(animationProgress/7%5>2)
+                ctx.fillText("ADVERTISING",155,500);
+            ctx.fillStyle="#000";
+            ctx.font="30px Arial";
+            ctx.fillText("Want to play more of my games? Find them, by yourself.",150,600);
+            //rotating stuff
+            ctx.save();
+            ctx.translate(940,605);
+            ctx.rotate(9*animationProgress*Math.PI/180);
+            ctx.fillText("🐐",0,0);
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(1055,150);
+            ctx.rotate(-5*animationProgress*Math.PI/180);
+            ctx.fillText("⛲",0,0);
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(135,650);
+            ctx.rotate(-25*animationProgress*Math.PI/180);
+            ctx.fillText("⛽",0,0);
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(675,320);
+            ctx.rotate(3*animationProgress*Math.PI/180);
+            ctx.fillText("⛄",0,0);
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(140,140);
+            ctx.rotate(animationProgress*Math.PI/180);
+            if(animationProgress/20%5>2) ctx.fillText("☕",0,0);
+            ctx.restore();
+        }
+        else cannotSolve=false;
+
+        //document.title=mousex+" "+mousey;
+    }
+    //TODO ending here
 
     drawHUD(solutionObject);
     //if mouse is inside solutionObject, mouse becomes an hand
