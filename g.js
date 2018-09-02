@@ -45,6 +45,7 @@ var selectedObject=null;
 var oldmousex,oldmousey;
 var cannotSolve;
 var inputDelay=0;
+var listOfMousePositions=[];
 
 //controls
 canvas.addEventListener("mousemove",mossoMouse);
@@ -52,7 +53,7 @@ canvas.addEventListener("mousedown",cliccatoMouse);
 canvas.addEventListener("mouseup",rilasciatoMouse);
 window.addEventListener('keyup',keyUp,false);
 
-level=0;//TODO change level here
+level=8;//TODO change level here
 generateLevel();
 activeTask=setInterval(run, 33);
 
@@ -281,13 +282,13 @@ function generateLevel()
         solutionObject.isCircle=true;
         solutionObject.hasRectangle=false;
         solutionObject.alpha=1;
-        clearInterval(activeTask);
-        activeTask=setInterval(run, 1);
+        //clearInterval(activeTask);
+        //activeTask=setInterval(run, 1);
     }
     else if(level==9)
     {
-        clearInterval(activeTask);
-        activeTask=setInterval(run, 33);
+        //clearInterval(activeTask);
+        //activeTask=setInterval(run, 33);
         solutionObject.sizeX=45;
         solutionObject.sizeY=45;
         solutionObject.x=canvasW/2;
@@ -510,6 +511,12 @@ function run()
     }
     else if(level==2)
     {
+        //commentary
+        ctx.fillStyle="#777";
+        ctx.font="24px Arial";
+        ctx.fillText("They said that in life, only three things really matter..",300,350);
+        ctx.fillText("          You know that there is a fourth one.",300,450);
+
         if(solutionObject.x+solutionObject.dx>canvasW-solutionObject.sizeX || solutionObject.x+solutionObject.dx<0)
             solutionObject.dx*=-1;
         if(solutionObject.y+solutionObject.dy>canvasH || solutionObject.y+solutionObject.dy<solutionObject.sizeY)
@@ -565,7 +572,7 @@ function run()
         else
         {
             solutionObject.alpha=0;
-            animationProgress=rand(300,999);
+            animationProgress=rand(100,600);
             solutionObject.dx=rand(-5,5);
             solutionObject.dy=rand(-5,5);
         }
@@ -604,6 +611,11 @@ function run()
     }
     else if(level==3)
     {
+        //commentary
+        ctx.fillStyle="#777";
+        ctx.font="24px Arial";
+        ctx.fillText("They'll try to distract you.",400,100);
+
         ctx.font="40px Webdings";
         for(i=0;i<canvasW/40;i++)
             for(k=0;k<-5+canvasH/40;k++)
@@ -615,6 +627,12 @@ function run()
     }
     else if(level==4)
     {
+        //commentary
+        ctx.fillStyle="#777";
+        ctx.font="24px Arial";
+        ctx.fillText("       But if you stop and think,",200,250);
+        ctx.fillText("you will understand what you really need.",200,300);
+
         //semaforo
         ctx.fillStyle="#888";
         ctx.fillRect(930,160,140,460);
@@ -675,6 +693,12 @@ function run()
     }
     else if(level==5)
     {
+        //commentary
+        ctx.fillStyle="#777";
+        ctx.font="24px Arial";
+        ctx.fillText("There are some cheap imitation of that.",370,220);
+        ctx.fillText("      But you need the original.",370,270);
+
         if(!dragging)
             selectedObject=null;
         if(selectedObject!=null)
@@ -713,6 +737,11 @@ function run()
     //In the jungle, you must wait, until the dice read 5 or 8.
     else if(level==6)
     {
+         //commentary
+        ctx.fillStyle="#777";
+        ctx.font="24px Arial";
+        ctx.fillText("And you need it now.",900,750);
+
         ctx.fillStyle="#EEE";
         ctx.font="60px Arial";
         toWrite="In the jungle,";
@@ -747,6 +776,11 @@ function run()
     }
     else if(level==7)
     {//monty hall problem
+        //commentary
+        ctx.fillStyle="#777";
+        ctx.font="24px Arial";
+        ctx.fillText("Without silly games..",900,750);
+
         ctx.fillStyle="#EEE";
         ctx.font="60px Arial";
         if(animationProgress==0)
@@ -873,6 +907,10 @@ function run()
     }
     else if(level==8)
     {
+        ctx.fillStyle="#777";
+        ctx.font="24px Arial";
+        ctx.fillText("Without dirty tricks..",900,750);
+
         var firstRectangle=new Object();
         firstRectangle.x=200;
         firstRectangle.y=160;
@@ -886,22 +924,29 @@ function run()
         ctx.strokeStyle="#F00";
         ctx.lineWidth=20;
         ctx.strokeRect(firstRectangle.x,firstRectangle.y,firstRectangle.sizeX,firstRectangle.sizeY); 
-        ctx.strokeRect(secondRectangle.x,secondRectangle.y,secondRectangle.sizeX,secondRectangle.sizeY); 
-        //mouse inside first rectangle
-        if(mousex>firstRectangle.x-15 && mousex<firstRectangle.x+firstRectangle.sizeX+15 && mousey>firstRectangle.y-15 && mousey<firstRectangle.y+firstRectangle.sizeY+15
+        ctx.strokeRect(secondRectangle.x,secondRectangle.y,secondRectangle.sizeX,secondRectangle.sizeY);
+
+        for(i in listOfMousePositions)
+        {
+            mousex=listOfMousePositions[i].x;
+            mousey=listOfMousePositions[i].y;
+            //mouse inside first rectangle
+            if(mousex>firstRectangle.x-15 && mousex<firstRectangle.x+firstRectangle.sizeX+15 && mousey>firstRectangle.y-15 && mousey<firstRectangle.y+firstRectangle.sizeY+15
             && (mousex<firstRectangle.x+40 || mousex>firstRectangle.x+firstRectangle.sizeX-40 || mousey<firstRectangle.y+40 || mousey>firstRectangle.y+firstRectangle.sizeY-40)//only on borders
-        )
-        {
-            solutionObject.x=800;
-            solutionObject.y=410;
-        }
-        if(mousex>secondRectangle.x-15 && mousex<secondRectangle.x+secondRectangle.sizeX+15 && mousey>secondRectangle.y-15 && mousey<secondRectangle.y+secondRectangle.sizeY+15
-            && (mousex<secondRectangle.x+40 || mousex>secondRectangle.x+secondRectangle.sizeX-40 || mousey<secondRectangle.y+40 || mousey>secondRectangle.y+secondRectangle.sizeY-40)//only on borders
-        )
-        {
-            solutionObject.x=300;
-            solutionObject.y=410;
-        }
+            )
+            {
+                solutionObject.x=800;
+                solutionObject.y=410;
+            }
+            if(mousex>secondRectangle.x-15 && mousex<secondRectangle.x+secondRectangle.sizeX+15 && mousey>secondRectangle.y-15 && mousey<secondRectangle.y+secondRectangle.sizeY+15
+                && (mousex<secondRectangle.x+40 || mousex>secondRectangle.x+secondRectangle.sizeX-40 || mousey<secondRectangle.y+40 || mousey>secondRectangle.y+secondRectangle.sizeY-40)//only on borders
+            )
+            {
+                solutionObject.x=300;
+                solutionObject.y=410;
+            }
+        }        
+        listOfMousePositions=[];
 
         drawSolutionPoint(solutionObject);
     }
@@ -997,7 +1042,7 @@ function distanceFrom(a,b)
     return Math.sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y));
 }
 
-//controlli mobile
+/*//controlli mobile
 function mossoTap(evt)
 {
     evt.preventDefault();
@@ -1019,7 +1064,7 @@ function rilasciatoTap(evt)
     dragging=false;
     mousey=-100;
     mousex=-100;
-}
+}*/
 //uindows
 function cliccatoMouse(evt)
 {
@@ -1034,6 +1079,10 @@ function mossoMouse(evt)
     var rect = canvas.getBoundingClientRect();
     mousex=(evt.clientX-rect.left)/(rect.right-rect.left)*canvasW;
     mousey=(evt.clientY-rect.top)/(rect.bottom-rect.top)*canvasH;
+    var o=new Object();
+    o.x=mousex;
+    o.y=mousey;
+    listOfMousePositions.push(o);
 }
 function rilasciatoMouse(evt)
 {
