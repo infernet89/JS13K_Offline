@@ -27,7 +27,7 @@ canvasH=canvas.height = 800;//window.innerHeight;
 //canvasW=(canvasH/800)*1200;
 maxDistance=Math.sqrt(canvasW*canvasW+canvasH*canvasH)/4;
 maxIntensity=7;
-var randomWords=["absurd","anomaly","bandit","banjo","boiler","bone","book","bottle","breakfast","bridge","broker","card","cat","center","cheese","club","dog","egg","error","experiment","explosion","female","fish","fungus","fusion","game","giraffe","glitch","horse","iceman","infuse","internet","jumper","keyboard","king","lawyer","letter","limit","lobster","man","meatball","message","metal","mouse","movie","mumble","normal","nugget","pancake","phobos","piece","rabbit","random","savage","scream","secure","ship","speed","stasis","substance","table","test","theatre","thing","trip","twist","title","watermelon","wild","zombie","undefined"];
+var randomWords=["absurd","anomaly","bandit","banjo","boiler","bone","book","bottle","breakfast","bridge","broker","card","cat","center","contract","cheese","club","dog","egg","error","experiment","explosion","female","fish","fungus","fusion","game","giraffe","glitch","horse","iceman","infuse","internet","jumper","keyboard","king","lawyer","letter","limit","lobster","man","meatball","message","metal","mouse","movie","mumble","normal","nugget","pancake","phobos","piece","rabbit","random","savage","scream","secure","ship","speed","stasis","sister","substance","table","test","theatre","thing","trip","twist","title","watermelon","wild","zombie"];
 var randomWordForRandom=[];
 //random words long6
 randomWords.forEach(function(e) {
@@ -88,6 +88,18 @@ function generateLevel()
         solutionObject.y=450;
         solutionObject.alpha=0.6;
         solutionObject.hasRectangle=false;
+        movableObjects=[];
+        for(i=0;i<32;i++)
+        {
+            tmp=new Object();
+            tmp.x=rand(0,canvasW);
+            tmp.y=rand(0,canvasH);
+            tmp.dx=rand(-10,10);
+            tmp.dy=rand(-10,10);
+            tmp.stoppingDelay=rand(0,300);
+            tmp.char="🧠"
+            movableObjects.push(tmp);
+        }
     }
     else if(level==2)
     {
@@ -525,6 +537,29 @@ function run()
         if(animationProgress>110) 
             ctx.fillText("BRAIN!",450,450);
         else dragging=false;//avoid click while loading animation
+
+        ctx.font="18px Arial";
+        for(i in movableObjects)
+        {
+            o=movableObjects[i];
+            //rimbalza
+            if(o.x+o.dx>canvasW-10 || o.x+o.dx<10)
+                o.dx*=-1;
+            if(o.y+o.dy+60>canvasH-10 || o.y+o.dy<10)
+                o.dy*=-1;
+            o.x+=o.dx;
+            o.y+=o.dy;
+            o.dx*=0.95;
+            o.dy*=0.95;
+            if(--o.stoppingDelay<0)
+            {
+                o.dx=rand(-10,10);
+                o.dy=rand(-10,10);
+                o.stoppingDelay=rand(0,300);
+            }
+            ctx.fillText(o.char,o.x,o.y);
+            //console.log(o.x,o.y);
+        }     
     }
     else if(level==2)
     {
