@@ -1152,7 +1152,7 @@ function run()
         ctx.fillText("got was this stupid certificate.",320,600);
         ctx.fillText("  🎀CONGRATULATIONS🎀",290,750);
 
-        document.title=mousex+" "+mousey;
+        //document.title=mousex+" "+mousey;
     }
 
     drawHUD(solutionObject);
