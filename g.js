@@ -48,6 +48,7 @@ var inputDelay=0;
 var prevMousex,prevMousey=-1;
 var repetition=0;
 var carPossibilities=[];
+var misteryGrid=[];
 
 //controls
 canvas.addEventListener("mousemove",mossoMouse);
@@ -57,7 +58,7 @@ canvas.addEventListener("mouseup",rilasciatoMouse);
 window.addEventListener("blur",sparitoMouse);
 //window.addEventListener('keyup',keyUp,false);
 
-level=0;//TODO change level here
+level=-1;//TODO change level here (menu is -1)
 generateLevel();
 activeTask=setInterval(run, 33);
 
@@ -71,7 +72,7 @@ function generateLevel()
     solutionObject.offsetY=0;
     solutionObject.alpha=1;
     solutionObject.color="#0F0";
-    if(level==0)
+    if(level==-1)
     {
         animationProgress=1;
         solutionObject.sizeX=60;
@@ -79,7 +80,7 @@ function generateLevel()
         solutionObject.x=canvasW/2-30
         solutionObject.y=canvasH-120;
     }
-    else if(level==1)
+    else if(level==0)
     {
         
         solutionObject.sizeX=300;
@@ -100,6 +101,21 @@ function generateLevel()
             tmp.char="🧠"
             movableObjects.push(tmp);
         }
+    }
+    else if(level==1)
+    {
+        solutionObject.sizeX=60;
+        solutionObject.sizeY=60;
+        solutionObject.x=70+rand(0,7)*140;
+        solutionObject.y=170+rand(0,3)*190;
+        solutionObject.hasRectangle=false;
+        for(j=0;j<4;j++)
+        {
+            misteryGrid[j]=[];
+            for(i=0;i<8;i++)
+                misteryGrid[j][i]=true;
+        }
+            
     }
     else if(level==2)
     {
@@ -457,7 +473,7 @@ function run()
     ctx.fillRect(canvasW-1,0,1,canvasH);
 
     //menu
-    if(level==0)
+    if(level==-1)
     {
         drawSolutionPoint(solutionObject);
 
@@ -494,7 +510,7 @@ function run()
         ctx.fillText("Made for JS13k Competition",5,canvasH-5);
         //ctx.fillText("Music by ABSolid",5+canvasW/2,canvasH-5);
     }
-    else if(level==1)
+    else if(level==0)
     {
         animationProgress++;
         //document.title=animationProgress;
@@ -560,6 +576,63 @@ function run()
             ctx.fillText(o.char,o.x,o.y);
             //console.log(o.x,o.y);
         }     
+    }
+    else if(level==1)
+    {
+        //commentary
+        ctx.fillStyle="#777";
+        ctx.font="60px Arial";
+        ctx.fillText("Usually, when you start a game,",100,240);
+        ctx.fillText("you want a tutorial. Someone that",100,340);
+        ctx.fillText("explains you how to play.",100,440);
+        ctx.fillText("Have you seen it, at the beginning",100,540);
+        ctx.fillText("of your life?          Me neither.",100,640);
+        ctx.font="25px Arial";
+        ctx.fillText("But I can give you some tips. If you are looking for directions, look in the top-right corner.",100,710);
+
+        cannotSolve=true;
+        drawSolutionPoint(solutionObject);
+        noMoreVisible=true;
+        for(j=0;j<4;j++)
+            for(i=0;i<8;i++)
+            {
+                offsetX=i*140+50;
+                offsetY=j*190+50;
+                if(!misteryGrid[j][i])
+                {
+                    if(solutionObject.x+10>offsetX && solutionObject.x+10<offsetX+100 && solutionObject.y>offsetY && solutionObject.y<offsetY+150)
+                        cannotSolve=false;
+                    continue;
+                }
+                
+                ctx.fillStyle="#700";
+                ctx.fillRect(offsetX,offsetY,100,150);
+                ctx.fillStyle="#804500";
+                ctx.fillRect(2+offsetX,2+offsetY,96,146);
+                ctx.fillStyle="#000";
+                ctx.font="160px Monospace";
+                ctx.fillText("?",5+offsetX,130+offsetY);
+                if(dragging && mousex>offsetX && mousex<offsetX+100 && mousey>offsetY && mousey<offsetY+150)
+                {
+                    misteryGrid[j][i]=false;
+                    inputDelay=5;
+                    animationProgress++;
+                }
+                else noMoreVisible=false;
+            }
+        if(animationProgress>1)
+        {
+            ctx.fillStyle="#F00";
+            ctx.font="12px Arial Bold";
+            ctx.fillText("TOO",solutionObject.x+14,solutionObject.y-40);
+            ctx.fillText("LATE!",solutionObject.x+12,solutionObject.y-22);
+            cannotSolve=true;
+        }
+        //reset level
+        if(noMoreVisible)
+        {
+            generateLevel();
+        }
     }
     else if(level==2)
     {
@@ -1228,15 +1301,6 @@ function sparitoMouse(evt)
 {
     mousex=mousey=-1;
 }
-/*
-function keyUp(e) {
-    //alert(e.keyCode);
-    if(e.keyCode==77 || e.keyCode==83)//m OR s
-    {
-        //TODO enable/disable sound
-        e=e;
-    }
-}*/
 window.AutoScaler = function(element, initialWidth, initialHeight, skewAllowance){
     var self = this;
     
